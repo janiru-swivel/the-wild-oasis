@@ -1,5 +1,4 @@
 import { useForm } from "react-hook-form";
-import PropTypes from "prop-types"; // Import PropTypes
 
 import Input from "../../ui/Input";
 import Form from "../../ui/Form";
@@ -11,55 +10,53 @@ import FormRow from "../../ui/FormRow";
 import { useCreateCabin } from "./useCreateCabin";
 import { useEditCabin } from "./useEditCabin";
 
-function CreateCabinForm({ cabinToEdit = {} }) {
+function CreateCabinForm({ cabinToEdit = {}, onCloseModal }) {
   const { isCreating, createCabin } = useCreateCabin();
   const { isEditing, editCabin } = useEditCabin();
   const isWorking = isCreating || isEditing;
 
-  // Destructure cabinToEdit to get the id and other properties
   const { id: editId, ...editValues } = cabinToEdit;
   const isEditSession = Boolean(editId);
 
-  // useForm hook for form management
   const { register, handleSubmit, reset, getValues, formState } = useForm({
     defaultValues: isEditSession ? editValues : {},
   });
-  const { errors } = formState; // Destructure errors from formState
+  const { errors } = formState;
 
-  // Handle form submission
   function onSubmit(data) {
-    // Handle image input separately to support both string and File inputs
     const image = typeof data.image === "string" ? data.image : data.image[0];
 
-    if (isEditSession) {
+    if (isEditSession)
       editCabin(
         { newCabinData: { ...data, image }, id: editId },
         {
-          onSuccess: () => {
-            reset(); // Reset form on success
+          onSuccess: (data) => {
+            reset();
+            onCloseModal?.();
           },
         }
       );
-    } else {
+    else
       createCabin(
-        { ...data, image },
+        { ...data, image: image },
         {
-          onSuccess: () => {
-            reset(); // Reset form on success
+          onSuccess: (data) => {
+            reset();
+            onCloseModal?.();
           },
         }
       );
-    }
   }
 
-  // Handle form validation errors
   function onError(errors) {
-    // Optionally handle errors here (e.g., logging or custom UI)
-    console.error(errors);
+    // console.log(errors);
   }
 
   return (
-    <Form onSubmit={handleSubmit(onSubmit, onError)}>
+    <Form
+      onSubmit={handleSubmit(onSubmit, onError)}
+      type={onCloseModal ? "modal" : "regular"}
+    >
       <FormRow label="Cabin name" error={errors?.name?.message}>
         <Input
           type="text"
@@ -95,7 +92,7 @@ function CreateCabinForm({ cabinToEdit = {} }) {
             required: "This field is required",
             min: {
               value: 1,
-              message: "Price should be at least 1",
+              message: "Capacity should be at least 1",
             },
           })}
         />
@@ -121,7 +118,9 @@ function CreateCabinForm({ cabinToEdit = {} }) {
         error={errors?.description?.message}
       >
         <Textarea
+          type="number"
           id="description"
+          defaultValue=""
           disabled={isWorking}
           {...register("description", {
             required: "This field is required",
@@ -140,7 +139,12 @@ function CreateCabinForm({ cabinToEdit = {} }) {
       </FormRow>
 
       <FormRow>
-        <Button variation="secondary" type="reset">
+        {/* type is an HTML attribute! */}
+        <Button
+          variation="secondary"
+          type="reset"
+          onClick={() => onCloseModal?.()}
+        >
           Cancel
         </Button>
         <Button disabled={isWorking}>
@@ -150,18 +154,5 @@ function CreateCabinForm({ cabinToEdit = {} }) {
     </Form>
   );
 }
-
-// Define prop types for validation
-CreateCabinForm.propTypes = {
-  cabinToEdit: PropTypes.shape({
-    id: PropTypes.string,
-    name: PropTypes.string,
-    maxCapacity: PropTypes.number,
-    regularPrice: PropTypes.number,
-    discount: PropTypes.number,
-    image: PropTypes.oneOfType([PropTypes.string, PropTypes.object]), // Support string (URL) or File input
-    description: PropTypes.string,
-  }),
-};
 
 export default CreateCabinForm;
