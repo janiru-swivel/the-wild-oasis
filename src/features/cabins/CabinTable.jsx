@@ -44,10 +44,13 @@ function CabinTable() {
         </Table.Header>
 
         <Table.Body
-          // data={cabins}
-          // data={filteredCabins}
           data={sortedCabins}
-          render={(cabin) => <CabinRow cabin={cabin} key={cabin.id} />}
+          render={(cabin) => (
+            <CabinRow
+              cabin={{ ...cabin, id: cabin.id.toString() }}
+              key={cabin.id}
+            />
+          )}
         />
       </Table>
     </Menus>

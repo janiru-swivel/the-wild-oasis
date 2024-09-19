@@ -50,7 +50,10 @@ function CabinRow({ cabin }) {
     discount,
     image,
     description,
-  } = cabin;
+  } = {
+    ...cabin,
+    id: cabin.id.toString(),
+  };
 
   function handleDuplicate() {
     createCabin({
@@ -100,14 +103,24 @@ function CabinRow({ cabin }) {
             <Modal.Window name="edit">
               <CreateCabinForm cabinToEdit={cabin} />
             </Modal.Window>
-
             <Modal.Window name="delete">
               <ConfirmDelete
                 resourceName="cabins"
                 disabled={isDeleting}
                 onConfirm={() => deleteCabin(cabinId)}
+                onCloseModal={() => {
+                  /* logic to close the modal */
+                }} // Add this line
               />
             </Modal.Window>
+
+            {/* <Modal.Window name="delete">
+              <ConfirmDelete
+                resourceName="cabins"
+                disabled={isDeleting}
+                onConfirm={() => deleteCabin(cabinId)}
+              />
+            </Modal.Window> */}
           </Menus.Menu>
         </Modal>
       </div>
@@ -117,7 +130,7 @@ function CabinRow({ cabin }) {
 
 CabinRow.propTypes = {
   cabin: PropTypes.shape({
-    id: PropTypes.string.isRequired,
+    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
     name: PropTypes.string.isRequired,
     maxCapacity: PropTypes.number.isRequired,
     regularPrice: PropTypes.number.isRequired,
