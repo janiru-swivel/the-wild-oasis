@@ -1,3 +1,4 @@
+import PropTypes from "prop-types";
 import { cloneElement, createContext, useContext, useState } from "react";
 import { createPortal } from "react-dom";
 import { HiXMark } from "react-icons/hi2";
@@ -46,9 +47,6 @@ const Button = styled.button`
   & svg {
     width: 2.4rem;
     height: 2.4rem;
-    /* Sometimes we need both */
-    /* fill: var(--color-grey-500);
-    stroke: var(--color-grey-500); */
     color: var(--color-grey-500);
   }
 `;
@@ -68,11 +66,20 @@ function Modal({ children }) {
   );
 }
 
+Modal.propTypes = {
+  children: PropTypes.node.isRequired,
+};
+
 function Open({ children, opens: opensWindowName }) {
   const { open } = useContext(ModalContext);
 
   return cloneElement(children, { onClick: () => open(opensWindowName) });
 }
+
+Open.propTypes = {
+  children: PropTypes.element.isRequired,
+  opens: PropTypes.string.isRequired,
+};
 
 function Window({ children, name }) {
   const { openName, close } = useContext(ModalContext);
@@ -93,6 +100,11 @@ function Window({ children, name }) {
     document.body
   );
 }
+
+Window.propTypes = {
+  children: PropTypes.element.isRequired,
+  name: PropTypes.string.isRequired,
+};
 
 Modal.Open = Open;
 Modal.Window = Window;

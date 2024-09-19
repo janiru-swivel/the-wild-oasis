@@ -3,6 +3,7 @@ import { createPortal } from "react-dom";
 import { HiEllipsisVertical } from "react-icons/hi2";
 import styled from "styled-components";
 import { useOutsideClick } from "../hooks/useOutsideClick";
+import PropTypes from "prop-types"; // Import PropTypes
 
 const Menu = styled.div`
   display: flex;
@@ -83,10 +84,16 @@ function Menus({ children }) {
   );
 }
 
+Menus.propTypes = {
+  children: PropTypes.node.isRequired,
+};
+
 function Toggle({ id }) {
   const { openId, close, open, setPosition } = useContext(MenusContext);
 
   function handleClick(e) {
+    e.stopPropagation();
+
     const rect = e.target.closest("button").getBoundingClientRect();
     setPosition({
       x: window.innerWidth - rect.width - rect.x,
@@ -103,9 +110,13 @@ function Toggle({ id }) {
   );
 }
 
+Toggle.propTypes = {
+  id: PropTypes.string.isRequired,
+};
+
 function List({ id, children }) {
   const { openId, position, close } = useContext(MenusContext);
-  const ref = useOutsideClick(close);
+  const ref = useOutsideClick(close, false);
 
   if (openId !== id) return null;
 
@@ -116,6 +127,11 @@ function List({ id, children }) {
     document.body
   );
 }
+
+List.propTypes = {
+  id: PropTypes.string.isRequired,
+  children: PropTypes.node.isRequired,
+};
 
 function Button({ children, icon, onClick }) {
   const { close } = useContext(MenusContext);
@@ -134,6 +150,12 @@ function Button({ children, icon, onClick }) {
     </li>
   );
 }
+
+Button.propTypes = {
+  children: PropTypes.node.isRequired,
+  icon: PropTypes.element,
+  onClick: PropTypes.func,
+};
 
 Menus.Menu = Menu;
 Menus.Toggle = Toggle;
